@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 
 // ID вашей Google таблицы
 const SPREADSHEET_ID = '129bffe_1ePvtcNRXgG9U6JqgJKYzGwokz0ONVMAS8iI';
-const SHEET_NAME = 'articles';
 
 // Путь к файлу с статьями
 const articlesPath = require('path').join(process.cwd(), 'data', 'articles.json');
@@ -45,7 +44,7 @@ async function getDataFromGoogleSheets(): Promise<Article[]> {
   try {
     // Используем публичный URL Google Sheets (CSV формат)
     const response = await fetch(
-      `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}`
+      `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=articles`
     );
     
     if (!response.ok) {
@@ -60,7 +59,7 @@ async function getDataFromGoogleSheets(): Promise<Article[]> {
     for (const row of rows) {
       if (!row.trim()) continue;
       
-      // Парсим CSV строку (учитываем что текст может содержать запятые)
+      // Парсим CSV строку
       const columns: string[] = [];
       let current = '';
       let inQuotes = false;
@@ -81,7 +80,7 @@ async function getDataFromGoogleSheets(): Promise<Article[]> {
       
       if (columns.length >= 6) {
         const article: Article = {
-          id: columns[0] || Math.random().toString(36).substring(7),
+          id: columns[0] || `article-${Date.now()}-${Math.random().toString(36).substring(7)}`,
           title: columns[1] || 'Без названия',
           subtitle: columns[2] || '',
           content: columns[3] || '',
@@ -90,7 +89,7 @@ async function getDataFromGoogleSheets(): Promise<Article[]> {
         };
         
         // Проверяем что статья имеет минимально необходимые данные
-        if (article.id && article.title) {
+        if (article.title && article.title !== 'Без названия') {
           articles.push(article);
         }
       }
@@ -99,29 +98,21 @@ async function getDataFromGoogleSheets(): Promise<Article[]> {
     return articles;
   } catch (error) {
     console.error('Error fetching from Google Sheets:', error);
-    // Возвращаем тестовые данные если не удалось подключиться
-    return getMockDataFromSheets();
+    return [];
   }
-}
-
-// Резервные тестовые данные
-function getMockDataFromSheets() {
-  return [
-    {
-      id: 'demo-from-sheets',
-      title: 'ДЕМО СТАТЬЯ ИЗ GOOGLE SHEETS',
-      subtitle: 'Если таблица не настроена, показываем это',
-      content: `Эта статья показывает как будет работать система с Google Sheets.\n\n## Чтобы настроить:\n\n1. Создайте Google таблицу\n2. Установите правильные заголовки\n3. Откройте доступ по ссылке\n4. Обновите ID таблицы в коде\n\n**Система готова к работе!**`,
-      published: true,
-      created_at: new Date().toISOString().split('T')[0]
-    }
-  ];
 }
 
 export async function POST() {
   try {
     // Получаем данные из Google Sheets
     const sheetsData = await getDataFromGoogleSheets();
+    
+    if (sheetsData.length === 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Не удалось получить данные из таблицы или таблица пуста' 
+      });
+    }
     
     // Получаем текущие статьи
     const currentArticles = getAllArticles();
@@ -130,7 +121,16 @@ export async function POST() {
     const existingIds = new Set(currentArticles.map(article => article.id));
     const newArticles = sheetsData.filter(article => !existingIds.has(article.id));
     
-    const updatedArticles = [...newArticles]; // Используем только данные из таблицы
+    if (newArticles.length === 0) {
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Нет новых статей для импорта',
+        imported: 0,
+        total: currentArticles.length
+      });
+    }
+    
+    const updatedArticles = [...currentArticles, ...newArticles];
     
     // Сохраняем обновленные статьи
     const success = saveArticles(updatedArticles);
@@ -141,7 +141,7 @@ export async function POST() {
         message: `Импортировано ${newArticles.length} новых статей из Google Sheets`,
         imported: newArticles.length,
         total: updatedArticles.length,
-        source: 'Google Sheets'
+        newArticles: newArticles.map(a => ({ id: a.id, title: a.title }))
       });
     } else {
       return NextResponse.json(
@@ -153,15 +153,25 @@ export async function POST() {
   } catch (error) {
     console.error('Error importing articles:', error);
     return NextResponse.json(
-      { error: 'Ошибка при импорте статей' },
+      { error: 'Ошибка при импорте статей: ' + error },
       { status: 500 }
     );
   }
 }
 
 export async function GET() {
-  return NextResponse.json({ 
-    message: 'Используйте POST запрос для импорта статей из Google Sheets',
-    instructions: 'Создайте Google таблицу с колонками: id, title, subtitle, content, published, created_at'
-  });
+  try {
+    const articles = await getDataFromGoogleSheets();
+    return NextResponse.json({ 
+      success: true,
+      message: 'Данные из Google Sheets',
+      articles: articles,
+      total: articles.length
+    });
+  } catch (error) {
+    return NextResponse.json({ 
+      success: false,
+      error: 'Не удалось подключиться к Google Sheets'
+    });
+  }
 }
