@@ -40,7 +40,6 @@ export async function POST(request: Request) {
   try {
     const newArticles = await request.json();
     
-    // Проверяем валидность данных
     if (!Array.isArray(newArticles)) {
       return NextResponse.json(
         { error: 'Данные должны быть массивом статей' },
@@ -48,7 +47,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Проверяем структуру статей
     const validArticles = newArticles.map(article => ({
       id: article.id || Math.random().toString(36).substring(7),
       title: article.title || 'Без названия',
@@ -58,14 +56,14 @@ export async function POST(request: Request) {
       created_at: article.created_at || new Date().toISOString().split('T')[0]
     }));
 
-    // Сохраняем статьи
     const success = saveArticles(validArticles);
     
     if (success) {
       return NextResponse.json({ 
         success: true, 
         message: `Обновлено ${validArticles.length} статей`,
-        articles: validArticles
+        articles: validArticles,
+        imported: validArticles.length
       });
     } else {
       return NextResponse.json(
@@ -83,7 +81,6 @@ export async function POST(request: Request) {
   }
 }
 
-// GET endpoint для получения текущих статей
 export async function GET() {
   try {
     const articles = getAllArticles();
