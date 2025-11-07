@@ -42,6 +42,44 @@ export default function Home() {
             ))}
           </div>
         )}
+
+        <div style={{ 
+          display: 'flex', 
+          gap: '15px', 
+          marginTop: '30px', 
+          flexWrap: 'wrap',
+          justifyContent: 'center'
+        }}>
+          <Link href="/how-to-add" style={{ textDecoration: 'none' }}>
+            <div style={{
+              background: '#20BAEF',
+              color: 'white',
+              border: 'none',
+              padding: '12px 20px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              textAlign: 'center'
+            }}>
+              📝 Как добавить статью
+            </div>
+          </Link>
+
+          <Link href="/admin" style={{ textDecoration: 'none' }}>
+            <div style={{
+              background: '#732BC1',
+              color: 'white',
+              border: 'none',
+              padding: '12px 20px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              textAlign: 'center'
+            }}>
+              ⚙️ Админка
+            </div>
+          </Link>
+        </div>
       </div>
     </div>
   );
