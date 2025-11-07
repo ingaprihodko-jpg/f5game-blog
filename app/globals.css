@@ -259,3 +259,160 @@ body {
   letter-spacing: 3px;
   border: 2px solid rgba(255, 255, 255, 0.5);
 }
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .article-container {
+    padding: 10px;
+    max-width: 100%;
+  }
+  
+  .article-header {
+    padding: 25px 15px;
+    margin-bottom: 25px;
+  }
+  
+  .article-header h1 {
+    font-size: 24px;
+  }
+  
+  .article-header .subtitle {
+    font-size: 16px;
+  }
+  
+  .article-header .tag {
+    font-size: 14px;
+    padding: 8px 20px;
+  }
+  
+  .content-block {
+    padding: 20px 15px;
+    margin-bottom: 25px;
+  }
+  
+  .content-block h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .feature-item {
+    padding: 15px 20px;
+  }
+  
+  .highlight-box {
+    padding: 20px;
+  }
+  
+  .navigation-links {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .nav-link, .home-link {
+    display: block;
+    text-align: center;
+  }
+}
+
+/* Планшеты */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .article-container {
+    max-width: 90%;
+    padding: 15px;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Большие экраны */
+@media (min-width: 1200px) {
+  .article-container {
+    max-width: 1000px;
+  }
+}
+
+/* Улучшения для мобильной навигации */
+@media (max-width: 480px) {
+  .article-header {
+    padding: 20px 10px;
+  }
+  
+  .article-header h1 {
+    font-size: 20px;
+  }
+  
+  .content-block {
+    padding: 15px 10px;
+  }
+  
+  .feature-item {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+}
+
+/* Адаптивность для админки */
+@media (max-width: 768px) {
+  .admin-buttons {
+    flex-direction: column;
+  }
+  
+  .admin-buttons button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+/* Улучшения для текста на мобильных */
+@media (max-width: 768px) {
+  .article-bold {
+    font-size: 1em;
+  }
+  
+  .article-italic {
+    font-size: 0.9em;
+    padding-left: 10px;
+  }
+  
+  .future-section {
+    padding: 15px;
+  }
+}
+
+/* Адаптивные таблицы */
+@media (max-width: 768px) {
+  table {
+    font-size: 12px;
+  }
+  
+  th, td {
+    padding: 8px 5px;
+  }
+}
+
+/* Улучшения для iframe на Tilda */
+.iframe-container {
+  width: 100%;
+  height: 100vh;
+  border: none;
+}
+
+/* Ховер-эффекты только для десктопов */
+@media (hover: hover) and (pointer: fine) {
+  .feature-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(115, 43, 193, 0.3);
+  }
+  
+  .nav-link:hover, .home-link:hover {
+    transform: translateY(-1px);
+  }
+}
